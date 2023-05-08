@@ -1,5 +1,5 @@
-module github.com/AkihiroSuda/go-netfilter-queue
+module github.com/notutensil/go-netfilter-queue
 
-go 1.15
+go 1.20
 
 require github.com/google/gopacket v1.1.19
