@@ -109,7 +109,7 @@ var theTable = make(map[uint32]*chan NFPacket, 0)
 var theTabeLock sync.RWMutex
 
 // Create and bind to queue specified by queueId
-func NewNFQueue(queueId uint16, maxPacketsInQueue uint32, packetSize uint32) (*NFQueue, error) {
+func NewNFQueue(queueId uint16, maxPacketsInQueue uint32, packetSize uint32, failOpen bool) (*NFQueue, error) {
 	var nfq = NFQueue{}
 	var err error
 	var ret C.int
@@ -156,10 +156,12 @@ func NewNFQueue(queueId uint16, maxPacketsInQueue uint32, packetSize uint32) (*N
 		return nil, fmt.Errorf("Unable to set packets copy mode: %v\n", err)
 	}
 
-	if C.nfq_set_queue_flags(nfq.qh, C.u_int32_t(C.NFQA_CFG_F_FAIL_OPEN), C.u_int32_t(C.NFQA_CFG_F_FAIL_OPEN)) < 0 {
-		C.nfq_destroy_queue(nfq.qh)
-		C.nfq_close(nfq.h)
-		return nil, fmt.Errorf("Unable to set queue flags: %v\n", err)
+	if failOpen {
+		if C.nfq_set_queue_flags(nfq.qh, C.u_int32_t(C.NFQA_CFG_F_FAIL_OPEN), C.u_int32_t(C.NFQA_CFG_F_FAIL_OPEN)) < 0 {
+			C.nfq_destroy_queue(nfq.qh)
+			C.nfq_close(nfq.h)
+			return nil, fmt.Errorf("Unable to set queue flags: %v\n", err)
+		}
 	}
 
 	if nfq.fd, err = C.nfq_fd(nfq.h); err != nil {
