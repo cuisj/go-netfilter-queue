@@ -1,4 +1,4 @@
-module github.com/notutensil/go-netfilter-queue
+module github.com/cuisj/go-netfilter-queue
 
 go 1.20
 
